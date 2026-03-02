@@ -1,0 +1,1098 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  ShoppingBag, 
+  Search, 
+  Menu, 
+  X, 
+  Star, 
+  Heart, 
+  ArrowRight, 
+  Minus, 
+  Plus, 
+  Trash2, 
+  CheckCircle, 
+  Instagram, 
+  Facebook, 
+  Twitter, 
+  Mail,
+  Phone,
+  MapPin,
+  ChevronRight,
+  Filter
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// --- Mock Data ---
+const PRODUCTS = [
+  {
+    id: 1,
+    name: "Artisan Ceramic Vase",
+    price: 45.00,
+    category: "Home Decor",
+    rating: 4.8,
+    reviews: 124,
+    image: "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?auto=format&fit=crop&q=80&w=800",
+    description: "Handcrafted ceramic vase with a matte finish. Perfect for modern minimalist interiors."
+  },
+  {
+    id: 2,
+    name: "Organic Cotton T-Shirt",
+    price: 28.00,
+    category: "Fashion",
+    rating: 4.5,
+    reviews: 89,
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=800",
+    description: "Soft, breathable organic cotton tee. Sustainable fashion for everyday wear."
+  },
+  {
+    id: 3,
+    name: "Leather Weekend Bag",
+    price: 120.00,
+    category: "Accessories",
+    rating: 4.9,
+    reviews: 56,
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800",
+    description: "Genuine leather duffle bag with brass hardware. Durable and stylish for travel."
+  },
+  {
+    id: 4,
+    name: "Minimalist Watch",
+    price: 85.00,
+    category: "Accessories",
+    rating: 4.7,
+    reviews: 210,
+    image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&q=80&w=800",
+    description: "Sleek design with a genuine leather strap. Water-resistant up to 50m."
+  },
+  {
+    id: 5,
+    name: "Aromatherapy Diffuser",
+    price: 35.00,
+    category: "Home Decor",
+    rating: 4.6,
+    reviews: 340,
+    image: "https://images.unsplash.com/photo-1608508644127-536253099c38?auto=format&fit=crop&q=80&w=800",
+    description: "Ultrasonic essential oil diffuser with ambient LED lighting."
+  },
+  {
+    id: 6,
+    name: "Ceramic Coffee Set",
+    price: 55.00,
+    category: "Home Decor",
+    rating: 4.8,
+    reviews: 112,
+    image: "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&q=80&w=800",
+    description: "Includes 4 cups and a serving pot. Microwave and dishwasher safe."
+  },
+  {
+    id: 7,
+    name: "Denim Jacket",
+    price: 65.00,
+    category: "Fashion",
+    rating: 4.4,
+    reviews: 78,
+    image: "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?auto=format&fit=crop&q=80&w=800",
+    description: "Classic oversized denim jacket with vintage wash."
+  },
+  {
+    id: 8,
+    name: "Running Sneakers",
+    price: 95.00,
+    category: "Fashion",
+    rating: 4.7,
+    reviews: 450,
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=800",
+    description: "Lightweight mesh upper with responsive cushioning."
+  }
+];
+
+const TESTIMONIALS = [
+  {
+    id: 1,
+    name: "Sarah Jenkins",
+    role: "Interior Designer",
+    text: "The quality of the home decor items is unmatched. My clients always ask where I source my vases from!",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150"
+  },
+  {
+    id: 2,
+    name: "Michael Chen",
+    role: "Fashion Blogger",
+    text: "Ashan Imashka has become my go-to for sustainable fashion. The fabrics feel amazing and the fit is perfect.",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150"
+  },
+  {
+    id: 3,
+    name: "Emma Wilson",
+    role: "Verified Buyer",
+    text: "Fast shipping and beautiful packaging. It felt like receiving a gift even though I bought it for myself!",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=150"
+  }
+];
+
+// --- Components ---
+
+const Navbar = ({ cartCount, setView, currentView }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const navLinks = [
+    { name: 'Home', id: 'home' },
+    { name: 'Shop', id: 'shop' },
+    { name: 'About', id: 'about' },
+    { name: 'Contact', id: 'contact' },
+  ];
+
+  return (
+    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-stone-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-20">
+          {/* Logo */}
+          <div 
+            className="flex-shrink-0 flex items-center cursor-pointer"
+            onClick={() => setView('home')}
+          >
+            <span className="text-2xl font-serif font-bold text-stone-800 tracking-tight">
+              Ashan<span className="text-orange-600">.</span>
+            </span>
+          </div>
+
+          {/* Desktop Menu */}
+          <div className="hidden md:flex space-x-8">
+            {navLinks.map((link) => (
+              <button
+                key={link.name}
+                onClick={() => setView(link.id)}
+                className={`text-sm font-medium transition-colors duration-200 ${
+                  currentView === link.id 
+                    ? 'text-orange-600' 
+                    : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                {link.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Icons */}
+          <div className="flex items-center space-x-6">
+            <button 
+              onClick={() => setView('shop')}
+              className="text-stone-600 hover:text-stone-900 transition-colors"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={() => setView('cart')}
+              className="text-stone-600 hover:text-stone-900 transition-colors relative"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-orange-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <button onClick={() => setIsOpen(!isOpen)} className="text-stone-600">
+                {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-white border-b border-stone-100 overflow-hidden"
+          >
+            <div className="px-4 pt-2 pb-6 space-y-2">
+              {navLinks.map((link) => (
+                <button
+                  key={link.name}
+                  onClick={() => {
+                    setView(link.id);
+                    setIsOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-3 text-base font-medium text-stone-600 hover:text-orange-600 hover:bg-stone-50 rounded-md"
+                >
+                  {link.name}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </nav>
+  );
+};
+
+const Hero = ({ setView }) => (
+  <div className="relative bg-stone-50 overflow-hidden">
+    <div className="max-w-7xl mx-auto">
+      <div className="relative z-10 pb-8 bg-stone-50 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 pt-20 px-4 sm:px-6 lg:px-8">
+        <main className="mt-10 mx-auto max-w-7xl sm:mt-12 md:mt-16 lg:mt-20 xl:mt-28">
+          <div className="sm:text-center lg:text-left">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-4xl tracking-tight font-serif font-extrabold text-stone-900 sm:text-5xl md:text-6xl"
+            >
+              <span className="block xl:inline">Curated Lifestyle</span>{' '}
+              <span className="block text-orange-600 xl:inline">For the Modern You</span>
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mt-3 text-base text-stone-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0"
+            >
+              Discover our exclusive collection of handcrafted home decor, sustainable fashion, and premium accessories designed to elevate your everyday life.
+            </motion.p>
+            <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+              <div className="rounded-md shadow">
+                <button
+                  onClick={() => setView('shop')}
+                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-stone-900 hover:bg-stone-800 md:py-4 md:text-lg transition-all"
+                >
+                  Shop Now
+                </button>
+              </div>
+              <div className="mt-3 sm:mt-0 sm:ml-3">
+                <button
+                  onClick={() => setView('about')}
+                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-stone-700 bg-stone-100 hover:bg-stone-200 md:py-4 md:text-lg transition-all"
+                >
+                  Our Story
+                </button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
+      <img
+        className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
+        src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1600"
+        alt="Modern lifestyle store interior"
+      />
+    </div>
+  </div>
+);
+
+const ProductCard = ({ product, onClick }) => (
+  <motion.div 
+    layout
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-100"
+  >
+    <div 
+      className="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-stone-200 xl:aspect-w-7 xl:aspect-h-8 cursor-pointer"
+      onClick={() => onClick(product)}
+    >
+      <img
+        src={product.image}
+        alt={product.name}
+        className="w-full h-64 object-cover object-center group-hover:scale-105 transition-transform duration-500"
+      />
+      <div className="absolute top-3 right-3">
+        <button className="p-2 rounded-full bg-white/90 text-stone-400 hover:text-red-500 shadow-sm transition-colors">
+          <Heart className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+    <div className="p-5">
+      <p className="text-xs text-orange-600 font-semibold uppercase tracking-wide mb-1">{product.category}</p>
+      <h3 className="text-lg font-medium text-stone-900 cursor-pointer hover:text-orange-600 transition-colors" onClick={() => onClick(product)}>
+        {product.name}
+      </h3>
+      <div className="flex items-center mt-2 mb-3">
+        <div className="flex text-yellow-400 text-xs">
+          {[...Array(5)].map((_, i) => (
+            <Star key={i} className={`w-3 h-3 ${i < Math.floor(product.rating) ? 'fill-current' : 'text-stone-300'}`} />
+          ))}
+        </div>
+        <span className="text-xs text-stone-500 ml-2">({product.reviews})</span>
+      </div>
+      <div className="flex items-center justify-between">
+        <p className="text-lg font-bold text-stone-900">${product.price.toFixed(2)}</p>
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick(product, true); // true = quick add
+          }}
+          className="p-2 rounded-full bg-stone-100 text-stone-900 hover:bg-stone-900 hover:text-white transition-colors"
+        >
+          <ShoppingBag className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  </motion.div>
+);
+
+const Footer = ({ setView }) => (
+  <footer className="bg-stone-900 text-stone-300 pt-16 pb-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <div className="col-span-1 md:col-span-1">
+          <span className="text-2xl font-serif font-bold text-white tracking-tight block mb-4">
+            Ashan<span className="text-orange-600">.</span>
+          </span>
+          <p className="text-sm text-stone-400 leading-relaxed">
+            Curating the finest lifestyle products for the modern individual. Quality, sustainability, and design in every piece.
+          </p>
+        </div>
+        <div>
+          <h4 className="text-white font-bold mb-4">Shop</h4>
+          <ul className="space-y-2 text-sm">
+            <li><button onClick={() => setView('shop')} className="hover:text-orange-500 transition-colors">All Products</button></li>
+            <li><button onClick={() => setView('shop')} className="hover:text-orange-500 transition-colors">New Arrivals</button></li>
+            <li><button onClick={() => setView('shop')} className="hover:text-orange-500 transition-colors">Featured</button></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="text-white font-bold mb-4">Company</h4>
+          <ul className="space-y-2 text-sm">
+            <li><button onClick={() => setView('about')} className="hover:text-orange-500 transition-colors">About Us</button></li>
+            <li><button onClick={() => setView('contact')} className="hover:text-orange-500 transition-colors">Contact</button></li>
+            <li><button className="hover:text-orange-500 transition-colors">Careers</button></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="text-white font-bold mb-4">Stay Updated</h4>
+          <div className="flex flex-col space-y-3">
+            <input 
+              type="email" 
+              placeholder="Enter your email" 
+              className="bg-stone-800 border-none rounded-lg px-4 py-2 text-sm focus:ring-1 focus:ring-orange-500 text-white"
+            />
+            <button className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors">
+              Subscribe
+            </button>
+          </div>
+        </div>
+      </div>
+      <div className="border-t border-stone-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+        <p className="text-xs text-stone-500">&copy; 2024 Ashan Imashka. All rights reserved.</p>
+        <div className="flex space-x-6 mt-4 md:mt-0">
+          <Instagram className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
+          <Facebook className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
+          <Twitter className="w-5 h-5 hover:text-white cursor-pointer transition-colors" />
+        </div>
+      </div>
+    </div>
+  </footer>
+);
+
+// --- Main Application ---
+
+export default function App() {
+  const [view, setView] = useState('home');
+  const [cart, setCart] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [isCheckoutSuccess, setIsCheckoutSuccess] = useState(false);
+
+  // Cart Logic
+  const addToCart = (product, quantity = 1) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.id === product.id);
+      if (existing) {
+        return prev.map(item => 
+          item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+        );
+      }
+      return [...prev, { ...product, quantity }];
+    });
+  };
+
+  const removeFromCart = (productId) => {
+    setCart(prev => prev.filter(item => item.id !== productId));
+  };
+
+  const updateQuantity = (productId, delta) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === productId) {
+        const newQuantity = Math.max(1, item.quantity + delta);
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    }));
+  };
+
+  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Product Logic
+  const handleProductClick = (product, quickAdd = false) => {
+    if (quickAdd) {
+      addToCart(product);
+      // Optional: Show toast here
+    } else {
+      setSelectedProduct(product);
+      setView('product');
+      window.scrollTo(0, 0);
+    }
+  };
+
+  const filteredProducts = useMemo(() => {
+    return PRODUCTS.filter(p => {
+      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, activeCategory]);
+
+  const categories = ['All', ...new Set(PRODUCTS.map(p => p.category))];
+
+  // --- Views ---
+
+  const HomeView = () => (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="min-h-screen"
+    >
+      <Hero setView={setView} />
+      
+      {/* Featured Categories */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-serif font-bold text-stone-900">Shop by Category</h2>
+            <p className="mt-4 text-stone-500">Explore our curated collections</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {['Fashion', 'Home Decor', 'Accessories'].map((cat, idx) => (
+              <div 
+                key={cat} 
+                onClick={() => { setActiveCategory(cat); setView('shop'); }}
+                className="relative h-96 rounded-2xl overflow-hidden cursor-pointer group"
+              >
+                <img 
+                  src={idx === 0 ? "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=800" : 
+                       idx === 1 ? "https://images.unsplash.com/photo-1616486338812-3dadae4b4f9d?auto=format&fit=crop&q=80&w=800" :
+                       "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&q=80&w=800"}
+                  alt={cat}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
+                <div className="absolute bottom-8 left-8">
+                  <h3 className="text-2xl font-bold text-white">{cat}</h3>
+                  <span className="text-white/90 flex items-center mt-2 group-hover:translate-x-2 transition-transform">
+                    Shop Now <ArrowRight className="w-4 h-4 ml-2" />
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Products */}
+      <section className="py-20 bg-stone-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h2 className="text-3xl font-serif font-bold text-stone-900">Trending Now</h2>
+              <p className="mt-2 text-stone-500">Our most popular picks this week</p>
+            </div>
+            <button 
+              onClick={() => setView('shop')}
+              className="hidden md:flex items-center text-orange-600 font-medium hover:text-orange-700"
+            >
+              View All <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {PRODUCTS.slice(0, 4).map(product => (
+              <ProductCard key={product.id} product={product} onClick={handleProductClick} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-serif font-bold text-stone-900 text-center mb-16">What Our Customers Say</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {TESTIMONIALS.map(t => (
+              <div key={t.id} className="bg-stone-50 p-8 rounded-2xl">
+                <div className="flex text-orange-500 mb-4">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+                </div>
+                <p className="text-stone-600 mb-6 italic">"{t.text}"</p>
+                <div className="flex items-center">
+                  <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover mr-3" />
+                  <div>
+                    <h4 className="font-bold text-stone-900 text-sm">{t.name}</h4>
+                    <p className="text-xs text-stone-500">{t.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </motion.div>
+  );
+
+  const ShopView = () => (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      exit={{ opacity: 0 }}
+      className="min-h-screen bg-stone-50 pt-10 pb-20"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+          <h1 className="text-3xl font-serif font-bold text-stone-900">All Products</h1>
+          <div className="flex items-center space-x-4 w-full md:w-auto">
+            <div className="relative flex-grow md:flex-grow-0">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-stone-400 w-4 h-4" />
+              <input 
+                type="text" 
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-2 rounded-full border border-stone-200 focus:outline-none focus:border-orange-500 w-full md:w-64"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                activeCategory === cat 
+                  ? 'bg-stone-900 text-white' 
+                  : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Grid */}
+        {filteredProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {filteredProducts.map(product => (
+              <ProductCard key={product.id} product={product} onClick={handleProductClick} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <p className="text-stone-500 text-lg">No products found matching your criteria.</p>
+            <button 
+              onClick={() => {setSearchQuery(''); setActiveCategory('All');}}
+              className="mt-4 text-orange-600 font-medium hover:underline"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+
+  const ProductDetailView = () => {
+    if (!selectedProduct) return null;
+    const [qty, setQty] = useState(1);
+
+    return (
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        exit={{ opacity: 0 }}
+        className="min-h-screen bg-white pt-10 pb-20"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <button 
+            onClick={() => setView('shop')} 
+            className="flex items-center text-stone-500 hover:text-stone-900 mb-8 transition-colors"
+          >
+            <ArrowRight className="w-4 h-4 rotate-180 mr-2" /> Back to Shop
+          </button>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {/* Image */}
+            <div className="bg-stone-100 rounded-3xl overflow-hidden aspect-square">
+              <img 
+                src={selectedProduct.image} 
+                alt={selectedProduct.name} 
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Details */}
+            <div className="flex flex-col justify-center">
+              <div className="mb-2">
+                <span className="text-orange-600 font-semibold tracking-wide uppercase text-sm">{selectedProduct.category}</span>
+              </div>
+              <h1 className="text-4xl font-serif font-bold text-stone-900 mb-4">{selectedProduct.name}</h1>
+              
+              <div className="flex items-center mb-6">
+                <div className="flex text-yellow-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`w-5 h-5 ${i < Math.floor(selectedProduct.rating) ? 'fill-current' : 'text-stone-300'}`} />
+                  ))}
+                </div>
+                <span className="ml-2 text-stone-500">({selectedProduct.reviews} reviews)</span>
+              </div>
+
+              <p className="text-3xl font-bold text-stone-900 mb-6">${selectedProduct.price.toFixed(2)}</p>
+              
+              <p className="text-stone-600 leading-relaxed mb-8">
+                {selectedProduct.description} This premium item is crafted with attention to detail and designed to last. 
+                Add it to your collection today and experience the Ashan Imashka difference.
+              </p>
+
+              <div className="flex items-center space-x-6 mb-8">
+                <div className="flex items-center border border-stone-300 rounded-lg">
+                  <button 
+                    onClick={() => setQty(Math.max(1, qty - 1))}
+                    className="p-3 hover:bg-stone-100 text-stone-600"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="px-4 font-medium text-stone-900">{qty}</span>
+                  <button 
+                    onClick={() => setQty(qty + 1)}
+                    className="p-3 hover:bg-stone-100 text-stone-600"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                <button 
+                  onClick={() => {
+                    addToCart(selectedProduct, qty);
+                    setView('cart');
+                  }}
+                  className="flex-1 bg-stone-900 text-white py-3.5 px-8 rounded-lg font-medium hover:bg-stone-800 transition-colors flex items-center justify-center"
+                >
+                  <ShoppingBag className="w-5 h-5 mr-2" /> Add to Cart
+                </button>
+              </div>
+
+              <div className="border-t border-stone-100 pt-8">
+                <h3 className="font-bold text-stone-900 mb-4">Why you'll love it</h3>
+                <ul className="space-y-2 text-stone-600 text-sm">
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 mr-2 text-green-500" /> Premium Quality Materials</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 mr-2 text-green-500" /> Sustainable Sourcing</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 mr-2 text-green-500" /> 30-Day Money Back Guarantee</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
+
+  const CartView = () => (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="min-h-screen bg-stone-50 pt-10 pb-20"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-serif font-bold text-stone-900 mb-8">Shopping Cart</h1>
+        
+        {cart.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            {/* Cart Items */}
+            <div className="lg:col-span-2 space-y-6">
+              {cart.map(item => (
+                <div key={item.id} className="bg-white p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row items-center gap-6">
+                  <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded-lg" />
+                  <div className="flex-1 text-center sm:text-left">
+                    <h3 className="font-bold text-stone-900">{item.name}</h3>
+                    <p className="text-stone-500 text-sm">{item.category}</p>
+                    <p className="font-bold text-stone-900 mt-2">${item.price.toFixed(2)}</p>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center border border-stone-200 rounded-lg">
+                      <button 
+                        onClick={() => updateQuantity(item.id, -1)}
+                        className="p-2 hover:bg-stone-50 text-stone-600"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span className="px-3 text-sm font-medium">{item.quantity}</span>
+                      <button 
+                        onClick={() => updateQuantity(item.id, 1)}
+                        className="p-2 hover:bg-stone-50 text-stone-600"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                    </div>
+                    <button 
+                      onClick={() => removeFromCart(item.id)}
+                      className="text-stone-400 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Summary */}
+            <div className="lg:col-span-1">
+              <div className="bg-white p-8 rounded-2xl shadow-sm sticky top-24">
+                <h2 className="text-xl font-bold text-stone-900 mb-6">Order Summary</h2>
+                <div className="space-y-4 mb-6">
+                  <div className="flex justify-between text-stone-600">
+                    <span>Subtotal</span>
+                    <span>${cartTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-stone-600">
+                    <span>Shipping</span>
+                    <span>Free</span>
+                  </div>
+                  <div className="flex justify-between text-stone-600">
+                    <span>Tax</span>
+                    <span>${(cartTotal * 0.08).toFixed(2)}</span>
+                  </div>
+                  <div className="border-t border-stone-100 pt-4 flex justify-between font-bold text-lg text-stone-900">
+                    <span>Total</span>
+                    <span>${(cartTotal * 1.08).toFixed(2)}</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setView('checkout')}
+                  className="w-full bg-stone-900 text-white py-4 rounded-xl font-bold hover:bg-stone-800 transition-colors"
+                >
+                  Proceed to Checkout
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-20 bg-white rounded-3xl">
+            <ShoppingBag className="w-16 h-16 text-stone-300 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-stone-900 mb-2">Your cart is empty</h2>
+            <p className="text-stone-500 mb-8">Looks like you haven't added anything yet.</p>
+            <button 
+              onClick={() => setView('shop')}
+              className="bg-orange-600 text-white px-8 py-3 rounded-full font-medium hover:bg-orange-700 transition-colors"
+            >
+              Start Shopping
+            </button>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+
+  const CheckoutView = () => {
+    const [formData, setFormData] = useState({
+      email: '', firstName: '', lastName: '', address: '', city: '', zip: ''
+    });
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      setIsCheckoutSuccess(true);
+      setCart([]);
+      setTimeout(() => {
+        setIsCheckoutSuccess(false);
+        setView('home');
+      }, 3000);
+    };
+
+    if (isCheckoutSuccess) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-stone-50 px-4">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white p-12 rounded-3xl shadow-xl text-center max-w-md w-full"
+          >
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-10 h-10 text-green-600" />
+            </div>
+            <h2 className="text-3xl font-serif font-bold text-stone-900 mb-4">Order Confirmed!</h2>
+            <p className="text-stone-600 mb-8">Thank you for your purchase. We've sent a confirmation email to you.</p>
+            <button 
+              onClick={() => setView('home')}
+              className="w-full bg-stone-900 text-white py-3 rounded-xl font-bold"
+            >
+              Continue Shopping
+            </button>
+          </motion.div>
+        </div>
+      );
+    }
+
+    return (
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        exit={{ opacity: 0 }}
+        className="min-h-screen bg-stone-50 pt-10 pb-20"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Form */}
+            <div>
+              <h1 className="text-3xl font-serif font-bold text-stone-900 mb-8">Checkout</h1>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Contact Information</label>
+                  <input 
+                    required
+                    type="email" 
+                    placeholder="Email"
+                    className="w-full px-4 py-3 rounded-lg border border-stone-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none"
+                    value={formData.email}
+                    onChange={e => setFormData({...formData, email: e.target.value})}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <input 
+                    required
+                    type="text" 
+                    placeholder="First Name"
+                    className="w-full px-4 py-3 rounded-lg border border-stone-200 focus:border-orange-500 outline-none"
+                    value={formData.firstName}
+                    onChange={e => setFormData({...formData, firstName: e.target.value})}
+                  />
+                  <input 
+                    required
+                    type="text" 
+                    placeholder="Last Name"
+                    className="w-full px-4 py-3 rounded-lg border border-stone-200 focus:border-orange-500 outline-none"
+                    value={formData.lastName}
+                    onChange={e => setFormData({...formData, lastName: e.target.value})}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Shipping Address</label>
+                  <input 
+                    required
+                    type="text" 
+                    placeholder="Address"
+                    className="w-full px-4 py-3 rounded-lg border border-stone-200 focus:border-orange-500 outline-none mb-4"
+                    value={formData.address}
+                    onChange={e => setFormData({...formData, address: e.target.value})}
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <input 
+                      required
+                      type="text" 
+                      placeholder="City"
+                      className="w-full px-4 py-3 rounded-lg border border-stone-200 focus:border-orange-500 outline-none"
+                      value={formData.city}
+                      onChange={e => setFormData({...formData, city: e.target.value})}
+                    />
+                    <input 
+                      required
+                      type="text" 
+                      placeholder="Postal Code"
+                      className="w-full px-4 py-3 rounded-lg border border-stone-200 focus:border-orange-500 outline-none"
+                      value={formData.zip}
+                      onChange={e => setFormData({...formData, zip: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <button 
+                  type="submit"
+                  className="w-full bg-stone-900 text-white py-4 rounded-xl font-bold hover:bg-stone-800 transition-colors mt-4"
+                >
+                  Complete Order
+                </button>
+              </form>
+            </div>
+
+            {/* Order Summary Side */}
+            <div className="bg-stone-100 p-8 rounded-3xl h-fit">
+              <h2 className="text-xl font-bold text-stone-900 mb-6">Order Summary</h2>
+              <div className="space-y-4 mb-6">
+                {cart.map(item => (
+                  <div key={item.id} className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      <div className="relative">
+                        <img src={item.image} className="w-12 h-12 rounded-lg object-cover" alt="" />
+                        <span className="absolute -top-2 -right-2 bg-stone-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                          {item.quantity}
+                        </span>
+                      </div>
+                      <span className="ml-4 text-stone-700 font-medium">{item.name}</span>
+                    </div>
+                    <span className="font-bold text-stone-900">${(item.price * item.quantity).toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-stone-200 pt-4 space-y-2">
+                <div className="flex justify-between text-stone-600">
+                  <span>Subtotal</span>
+                  <span>${cartTotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-stone-600">
+                  <span>Shipping</span>
+                  <span>Free</span>
+                </div>
+                <div className="flex justify-between text-xl font-bold text-stone-900 pt-2">
+                  <span>Total</span>
+                  <span>${(cartTotal * 1.08).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
+
+  const AboutView = () => (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="min-h-screen bg-white pt-10 pb-20"
+    >
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 className="text-4xl font-serif font-bold text-stone-900 mb-8">About Ashan Imashka</h1>
+        <div className="prose prose-lg mx-auto text-stone-600 mb-16">
+          <p className="mb-6">
+            Founded in 2024, Ashan Imashka began with a simple mission: to bring thoughtfully designed, high-quality products to the modern home. 
+            We believe that the objects you surround yourself with should tell a story—of craftsmanship, sustainability, and timeless style.
+          </p>
+          <p>
+            Every item in our collection is handpicked. From the artisan workshops in remote villages to the cutting-edge sustainable fashion labs, 
+            we ensure that every product meets our rigorous standards for quality and ethical production.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-20">
+          <div className="p-6">
+            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-600">
+              <Heart className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-bold text-stone-900 mb-2">Made with Love</h3>
+            <p className="text-stone-500">We partner with artisans who pour their passion into every stitch and brushstroke.</p>
+          </div>
+          <div className="p-6">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600">
+              <CheckCircle className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-bold text-stone-900 mb-2">Sustainable</h3>
+            <p className="text-stone-500">Eco-friendly materials and packaging are standard for every order we ship.</p>
+          </div>
+          <div className="p-6">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600">
+              <Star className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-bold text-stone-900 mb-2">Premium Quality</h3>
+            <p className="text-stone-500">We never compromise on quality. If it's not perfect, it doesn't make it to our store.</p>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  const ContactView = () => (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="min-h-screen bg-stone-50 pt-10 pb-20"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div>
+            <h1 className="text-4xl font-serif font-bold text-stone-900 mb-6">Get in Touch</h1>
+            <p className="text-stone-600 mb-8 text-lg">
+              Have a question about a product, an order, or just want to say hello? We'd love to hear from you.
+            </p>
+            
+            <div className="space-y-6">
+              <div className="flex items-start">
+                <Mail className="w-6 h-6 text-orange-600 mt-1 mr-4" />
+                <div>
+                  <h3 className="font-bold text-stone-900">Email Us</h3>
+                  <p className="text-stone-600">support@ashanimashka.com</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <Phone className="w-6 h-6 text-orange-600 mt-1 mr-4" />
+                <div>
+                  <h3 className="font-bold text-stone-900">Call Us</h3>
+                  <p className="text-stone-600">+1 (555) 123-4567</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <MapPin className="w-6 h-6 text-orange-600 mt-1 mr-4" />
+                <div>
+                  <h3 className="font-bold text-stone-900">Visit Us</h3>
+                  <p className="text-stone-600">123 Design District<br/>New York, NY 10012</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-8 rounded-3xl shadow-sm">
+            <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); alert('Message sent!'); }}>
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1">Name</label>
+                <input type="text" className="w-full px-4 py-3 rounded-lg border border-stone-200 focus:border-orange-500 outline-none" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1">Email</label>
+                <input type="email" className="w-full px-4 py-3 rounded-lg border border-stone-200 focus:border-orange-500 outline-none" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-1">Message</label>
+                <textarea rows={4} className="w-full px-4 py-3 rounded-lg border border-stone-200 focus:border-orange-500 outline-none" required></textarea>
+              </div>
+              <button type="submit" className="w-full bg-stone-900 text-white py-3 rounded-lg font-bold hover:bg-stone-800 transition-colors">
+                Send Message
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  return (
+    <div className="font-sans text-stone-900 bg-white min-h-screen flex flex-col">
+      <Navbar cartCount={cartCount} setView={setView} currentView={view} />
+      
+      <main className="flex-grow">
+        <AnimatePresence mode="wait">
+          {view === 'home' && <HomeView key="home" />}
+          {view === 'shop' && <ShopView key="shop" />}
+          {view === 'product' && <ProductDetailView key="product" />}
+          {view === 'cart' && <CartView key="cart" />}
+          {view === 'checkout' && <CheckoutView key="checkout" />}
+          {view === 'about' && <AboutView key="about" />}
+          {view === 'contact' && <ContactView key="contact" />}
+        </AnimatePresence>
+      </main>
+
+      <Footer setView={setView} />
+    </div>
+  );
+}
