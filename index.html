@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typexperiments</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a0a; }
+    canvas { display: block; width: 100%; height: 100%; }
+
+    /* Title — top left */
+    .site-title {
+      position: fixed;
+      top: 20px;
+      left: 24px;
+      z-index: 50;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: rgba(255,255,255,0.7);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Credits — bottom left */
+    .credits {
+      position: fixed;
+      bottom: 20px;
+      left: 24px;
+      z-index: 50;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.35);
+    }
+    .credits a {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .credits a:hover { color: rgba(255,255,255,0.8); }
+
+    /* Control Panel — top right */
+    .panel-toggle {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(20,20,20,0.9);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .panel-toggle:hover { background: rgba(40,40,40,0.95); transform: scale(1.05); }
+    .panel-toggle.hidden { opacity: 0; pointer-events: none; transform: scale(0.9); }
+
+    .control-panel {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      width: 320px;
+      max-height: calc(100vh - 32px);
+      overflow-y: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(14,14,14,0.92);
+      backdrop-filter: blur(20px);
+      color: #e0e0e0;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 12px;
+      z-index: 101;
+      transform: translateY(-10px) scale(0.97);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), opacity 0.2s;
+    }
+    .control-panel.open {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .panel-header h2 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #fff;
+    }
+    .panel-close {
+      width: 28px; height: 28px;
+      border: none; background: rgba(255,255,255,0.06);
+      border-radius: 8px; color: #888; font-size: 16px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .panel-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+    .panel-section {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .panel-section:last-child { border-bottom: none; }
+    .section-title {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .effect-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+    .effect-btn {
+      padding: 7px 0;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: #aaa;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .effect-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .effect-btn.active {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.25);
+      color: #fff;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .slider-row:last-child { margin-bottom: 0; }
+    .slider-label { color: #888; font-size: 11px; min-width: 80px; }
+    .slider-value {
+      color: #666;
+      font-size: 10px;
+      font-variant-numeric: tabular-nums;
+      min-width: 36px;
+      text-align: right;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      flex: 1;
+      height: 4px;
+      margin: 0 8px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.1);
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      color: #ccc;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px;
+      outline: none;
+      cursor: pointer;
+    }
+    select:hover { border-color: rgba(255,255,255,0.2); }
+
+    textarea {
+      width: 100%;
+      height: 72px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: #ccc;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+    }
+    textarea:focus { border-color: rgba(255,255,255,0.25); }
+
+    .btn-row { display: flex; gap: 6px; margin-top: 8px; }
+    .action-btn {
+      flex: 1;
+      padding: 8px 0;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.06);
+      color: #ccc;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .action-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .action-btn.primary {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+
+    /* Scrollbar */
+    .control-panel::-webkit-scrollbar { width: 4px; }
+    .control-panel::-webkit-scrollbar-track { background: transparent; }
+    .control-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <!-- Title -->
+  <div class="site-title">Typexperiments</div>
+
+  <!-- Credits -->
+  <div class="credits">
+    Based on <a href="https://github.com/chenglou/pretext" target="_blank" rel="noopener">Pretext</a> by Cheng Lou<br />
+    Made by <a href="https://pablostanley.substack.com/" target="_blank" rel="noopener">Pablo Stanley</a>
+  </div>
+
+  <!-- Controls toggle -->
+  <button class="panel-toggle" id="panelToggle" title="Controls">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+      <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+      <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+      <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/>
+      <line x1="17" y1="16" x2="23" y2="16"/>
+    </svg>
+  </button>
+
+  <!-- Control Panel -->
+  <div class="control-panel" id="controlPanel">
+    <div class="panel-header">
+      <h2>Controls</h2>
+      <button class="panel-close" id="panelClose">&times;</button>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-title">Effect</div>
+      <div class="effect-grid" id="effectGrid">
+        <button class="effect-btn active" data-effect="morph">Morph</button>
+        <button class="effect-btn" data-effect="explode">Explode</button>
+        <button class="effect-btn" data-effect="pour">Pour</button>
+        <button class="effect-btn" data-effect="wave">Wave</button>
+        <button class="effect-btn" data-effect="typewriter">Type</button>
+        <button class="effect-btn" data-effect="vortex">Vortex</button>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-title">Layout</div>
+      <div class="slider-row">
+        <span class="slider-label">Width</span>
+        <input type="range" id="widthSlider" min="100" max="1200" value="600" />
+        <span class="slider-value" id="widthValue">600</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Font Size</span>
+        <input type="range" id="fontSizeSlider" min="14" max="72" value="32" />
+        <span class="slider-value" id="fontSizeValue">32</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Line Height</span>
+        <input type="range" id="lineHeightSlider" min="100" max="250" value="150" />
+        <span class="slider-value" id="lineHeightValue">1.5</span>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-title">Animation</div>
+      <div class="slider-row">
+        <span class="slider-label">Duration</span>
+        <input type="range" id="durationSlider" min="200" max="3000" value="1200" step="100" />
+        <span class="slider-value" id="durationValue">1.2s</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Stagger</span>
+        <input type="range" id="staggerSlider" min="0" max="100" value="30" />
+        <span class="slider-value" id="staggerValue">30</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Easing</span>
+      </div>
+      <select id="easingSelect">
+        <option value="easeInOutCubic">Cubic (smooth)</option>
+        <option value="easeOutElastic">Elastic (bouncy)</option>
+        <option value="easeOutBounce">Bounce</option>
+        <option value="easeInOutQuad">Quad (gentle)</option>
+        <option value="linear">Linear</option>
+      </select>
+    </div>
+
+    <div class="panel-section" id="effectControls">
+      <div class="section-title">Effect Settings</div>
+      <div id="effectControlsInner"></div>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-title">Text</div>
+      <textarea id="textInput">Words that explode, reassemble, flow like water. Since you know exact line breaks and widths at any container size, you can smoothly animate text between layouts — morphing from one column width to another, or having text pour into a shape.</textarea>
+      <div class="btn-row">
+        <button class="action-btn primary" id="playBtn">Play</button>
+        <button class="action-btn" id="resetBtn">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
